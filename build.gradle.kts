@@ -17,6 +17,7 @@ repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
@@ -31,6 +32,11 @@ dependencies {
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-jackson:$ktorVersion")
+
+    // Exposed
+    implementation("org.jetbrains.exposed:exposed-core:0.22.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.22.1")
+    implementation("com.h2database:h2:1.4.199")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
