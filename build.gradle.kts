@@ -27,8 +27,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Use Ktor
-    implementation("io.ktor:ktor-server-core:1.3.0")
-    implementation("io.ktor:ktor-server-netty:1.3.0")
+    val ktorVersion = "1.3.0"
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-jackson:$ktorVersion")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
