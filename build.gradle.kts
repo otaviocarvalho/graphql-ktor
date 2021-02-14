@@ -6,7 +6,7 @@
 
 plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.3.41"
+    id("org.jetbrains.kotlin.jvm") version "1.3.50"
 
     // Apply the application plugin to add support for building a CLI application.
     application
@@ -37,6 +37,9 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:0.22.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.22.1")
     implementation("com.h2database:h2:1.4.199")
+
+    // KGraphQL
+    implementation("com.apurebase:kgraphql:0.17.0")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
