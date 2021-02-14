@@ -1,5 +1,6 @@
 package graphql.ktor
 
+import com.apurebase.kgraphql.GraphQL
 import com.apurebase.kgraphql.KGraphQL
 import io.ktor.application.*
 import io.ktor.features.*
@@ -10,6 +11,7 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 data class User(val id: Int?, val name: String, val age: Int)
@@ -31,7 +33,7 @@ object Users : Table() {
             )
 }
 
-fun Application.app() {
+fun Application.module() {
     install(ContentNegotiation) {
         jackson {
             // Jackson config goes here
@@ -53,72 +55,35 @@ fun Application.app() {
         }
     }
 
-    val schema = KGraphQL.schema {
-        query("heros") {
-            resolver { ->
-               transaction {
-                   Users.selectAll().map { Users.toUser(it) }
-               }
-            }
-        }
-
-        query("hero") {
-            resolver { id: Int ->
-                transaction {
-                    Users.select { Users.id eq id }.map { Users.toUser(it) }
+    install(GraphQL) {
+        playground = true
+        schema {
+            query("heros") {
+                resolver { ->
+                    transaction {
+                        Users.selectAll().map { Users.toUser(it) }
+                    }
                 }
             }
-        }
 
-        mutation("updateHero") {
-            resolver { id: Int, age: Int ->
-                transaction {
-                    Users.update({ Users.id eq id }) {
-                        it[Users.age] = age
+            query("hero") {
+                resolver { id: Int ->
+                    transaction {
+                        Users.select { Users.id eq id }.map { Users.toUser(it) }
+                    }
+                }
+            }
+
+            mutation("updateHero") {
+                resolver { id: Int, age: Int ->
+                    transaction {
+                        Users.update({ Users.id eq id }) {
+                            it[Users.age] = age
+                        }
                     }
                 }
             }
         }
-
-    }
-
-    install(Routing) {
-        route("graphql") {
-            get("/") {
-                val graphRequest = call.receive<GraphQLRequest>()
-                call.respond(schema.execute(graphRequest.query))
-            }
-
-        }
-
-        route("user") {
-            get("/") {
-                val users = transaction {
-                    Users.selectAll().map { Users.toUser(it) }
-                }
-                call.respond(users)
-            }
-
-            get("/{id}") {
-                val id = call.parameters["id"]!!.toInt()
-                val users = transaction {
-                    Users.select { Users.id eq id }.map { Users.toUser(it) }
-                }
-                call.respond(users)
-            }
-
-            post("/") {
-                val user = call.receive<User>()
-                transaction {
-                    Users.insert {
-                        it[name] = user.name
-                        it[age] = user.age
-                    }
-                }
-                call.respond(user)
-            }
-        }
-
     }
 }
 
@@ -126,7 +91,7 @@ fun main(args: Array<String>) {
     embeddedServer(
             Netty,
             watchPaths = listOf("graphql.ktor"),
-            module = Application::app,
+            module = Application::module,
             port = 8080
     ).start(wait = true)
 }
